@@ -69,8 +69,7 @@ bayesweakiv, reps(20000) discard(1000) level(95)
 ### Julia
 
 ```julia
-# Install (once)
-using Pkg; Pkg.add(url="https://github.com/WFirmin/bayesweakiv")
+include("bayesweakiv.jl")
 
 using bayesweakiv
 betas, deltas = drawPost(Y, X, Z, C, 20000)
