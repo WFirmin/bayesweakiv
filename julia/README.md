@@ -105,8 +105,7 @@ The sampler behaves differently depending on the number of excluded instruments:
 - **`k > 2`**: `π` and `ρ` are drawn jointly in a single multivariate normal
   step, and the hyperparameter `γ²` is also sampled.
 - **`k ≤ 2`**: `π` and `ρ` are drawn sequentially. When `k > 1`, a
-  Metropolis–Hastings accept/reject step is applied to the draw of `π` to
-  account for the geometry of the weak-instrument region.
+  Metropolis–Hastings accept/reject step is applied to the draw of `π`.
 In both cases the posterior for β is proper regardless of instrument strength.
  
 ---
