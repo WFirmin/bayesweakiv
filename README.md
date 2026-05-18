@@ -6,7 +6,7 @@ This repository provides Stata and Julia implementations of the Bayesian IV esti
 
 > Giannone, D., Lenza, M., and Primiceri, G., 2026. "Bayesian Inference in IV Regressions," Working Paper Series 3189, European Central Bank
 
-The estimator places a prior on the first-stage coefficients that shrinks toward zero and is calibrated to the data, making it robust to weak, strong, and irrelevant instruments without requiring the practitioner to pre-test or choose a threshold.
+The estimator places a prior on the first-stage coefficients that shrinks toward zero and is calibrated to the data, making it robust to weak instruments without requiring the practitioner to pre-test or choose a threshold.
 
 ---
 
