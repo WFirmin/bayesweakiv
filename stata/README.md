@@ -80,15 +80,6 @@ preserve
 restore
 ```
  
----
- 
-## Limitations
- 
-- Supports a **single endogenous regressor** only.
-- A constant is included automatically unless `noconstant` was specified in
-  the preceding `ivregress` call.
-- Requires Stata 17 or later due to use of Mata features introduced in that version.
----
  
 ## Citation
  
