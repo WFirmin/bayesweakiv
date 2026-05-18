@@ -2,6 +2,11 @@ program define bayesweakiv, eclass
     version 17.0
     syntax [, reps(integer 20000) discard(integer 1000) level(real 95)]
 
+	* Compile Mata functions if not already loaded
+    if (0 == findfile("lbayesweakiv.mlib")) {
+        quietly do `"`c(sysdir_plus)'b/bayesweakiv.mata"'
+    }
+
     /* ---------------------------------------------------------
        1. Verify that last command was ivregress
     --------------------------------------------------------- */
