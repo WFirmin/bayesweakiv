@@ -1,0 +1,4 @@
+v 3
+d Bayesian IV estimation robust to weak instruments
+d WFirmin/bayesweakiv
+p bayesweakiv
