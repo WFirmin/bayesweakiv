@@ -68,10 +68,11 @@ bayesweakiv, reps(20000) discard(1000) level(95)
 
 ### Julia
 
+This package is not yet registered in the Julia General registry. To use it,
+download `bayesweakiv.jl` and load it directly:
+
 ```julia
 include("bayesweakiv.jl")
-
-using bayesweakiv
 betas, deltas = drawPost(Y, X, Z, C, 20000)
 ```
 
