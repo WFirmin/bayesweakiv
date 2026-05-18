@@ -112,3 +112,9 @@ In both cases the posterior for β is proper regardless of instrument strength.
 ---
  
 ## Citation
+```
+Giannone, D., Lenza, M., and Primiceri, G., 2026. "Bayesian Inference in IV Regressions," Working Paper Series 3189, European Central Bank.
+ 
+[Names] (2026). bayesweakiv: Bayesian IV Estimation Robust to Weak Instruments
+[Stata and Julia]. https://github.com/WFirmin/bayesweakiv
+```
