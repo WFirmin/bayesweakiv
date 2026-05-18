@@ -1,0 +1,6 @@
+v 3
+d bayesweakiv: Bayesian IV estimation robust to weak instruments
+d Based on Giannone, Lenza, and Primiceri (2024)
+d
+f bayesweakiv.ado
+f bayesweakiv.mata
