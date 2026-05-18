@@ -93,9 +93,8 @@ restore
 ## Citation
  
 ```
-Giannone, D., Lenza, M., and Primiceri, G. E. (2024). Bayesian Inference in IV
-Regressions with Possible Weak Instruments. Working paper.
+Giannone, D., Lenza, M., and Primiceri, G., 2026. "Bayesian Inference in IV Regressions," Working Paper Series 3189, European Central Bank.
  
-Firmin, W. (2025). bayesweakiv: Bayesian IV Estimation Robust to Weak
-Instruments [Stata and Julia]. https://github.com/WFirmin/bayesweakiv
+[Names] (2026). bayesweakiv: Bayesian IV Estimation Robust to Weak Instruments
+[Stata and Julia]. https://github.com/WFirmin/bayesweakiv
 ```
