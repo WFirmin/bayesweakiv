@@ -43,11 +43,11 @@ bayesweakiv/
 │   ├── bayesweakiv.ado ← main command and sampler implementation
 │   ├── bayesweakiv.pkg ← package manifest
 │   ├── stata.toc       ← stata table of contents
-│   └── example.do      ← worked example
+│   └── example.do      ← worked example (planned)
 └── julia/
     ├── README.md       ← Julia-specific instructions
     ├── bayesweakiv.jl  ← sampler implementation
-    └── example.jl      ← worked example
+    └── example.jl      ← worked example (planned)
 ```
 
 ---
