@@ -40,8 +40,9 @@ bayesweakiv/
 ├── CITATION.cff        ← structured citation
 ├── stata/
 │   ├── README.md       ← Stata-specific instructions
-│   ├── bayesweakiv.ado ← main command
-│   ├── bayesweakiv.mata← Mata Gibbs sampler
+│   ├── bayesweakiv.ado ← main command and sampler implementation
+│   ├── bayesweakiv.pkg ← package manifest
+│   ├── stata.toc       ← stata table of contents
 │   └── example.do      ← worked example
 └── julia/
     ├── README.md       ← Julia-specific instructions
