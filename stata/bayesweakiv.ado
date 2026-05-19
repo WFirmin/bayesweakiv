@@ -3,53 +3,75 @@ program define bayesweakiv, eclass
     syntax [, reps(integer 20000) discard(integer 1000) level(real 95)]
 
     /* ---------------------------------------------------------
-       1. Verify that last command was ivregress
+       1. Verify that last command was a supported IV estimator
     --------------------------------------------------------- */
-    if "`e(cmd)'" != "ivregress" {
-        di as error "bayesweakiv must follow ivregress"
+    local cmd "`e(cmd)'"
+    if !inlist("`cmd'", "ivregress", "ivreg2") {
+        di as error "bayesweakiv must follow ivregress or ivreg2"
         exit 198
     }
 
     /* ---------------------------------------------------------
-       2. Extract variables from last ivregress call
+       2. Extract variables — branches by command
     --------------------------------------------------------- */
-	
-    tempname Y X Z C
-	tempvar exogr exog exogr_clean exog_clean Zvars
 
-    /* Dependent variable */
+    /* --- Dependent variable --- */
     mata: st_matrix("Y", st_data(., "`e(depvar)'"))
 
-    /* Endogenous regressors */
-    mata: st_matrix("X", st_data(., "`e(endog)'"))
-	
-	/* Exogenous variables */
-	local exogr `e(exogr)'
-	local exog `e(exog)'
-	/* Remove omitted variables (those starting with o.) */
-	local exogr_clean
-	foreach v of local exogr {
-		if substr("`v'",1,2) != "o." {
-			local exogr_clean `exogr_clean' `v'
-		}
-	}
-	local exog_clean
-	foreach v of local exog {
-		if substr("`v'",1,2) != "o." {
-			local exog_clean `exog_clean' `v'
-		}
-	}
-	local Zvars : list exog_clean - exogr_clean
-	mata: st_matrix("Z", st_data(., "`Zvars'"))
-	if "`exogr_clean'" != "" {
-		mata: st_matrix("C", st_data(., "`exogr_clean'"))
-	}
-	else {
-		mata: st_matrix("C", J(rows(st_matrix("X")),0,.))
-	}
-	if "`e(constant)'" != "noconstant" {
-		mata: st_matrix("C", (st_matrix("C"), J(rows(st_matrix("C")),1,1)))
-	}
+    /* --- Endogenous regressor --- */
+    if "`cmd'" == "ivregress" {
+        local endogvars `e(endog)'
+    }
+    else {
+        local endogvars `e(instd)'
+    }
+    mata: st_matrix("X", st_data(., "`endogvars'"))
+
+    /* --- Excluded instruments (Z) and controls (C) --- */
+    if "`cmd'" == "ivregress" {
+        local exogr `e(exogr)'
+        local exog  `e(exog)'
+        local exogr_clean
+        foreach v of local exogr {
+            if substr("`v'",1,2) != "o." local exogr_clean `exogr_clean' `v'
+        }
+        local exog_clean
+        foreach v of local exog {
+            if substr("`v'",1,2) != "o." local exog_clean `exog_clean' `v'
+        }
+        local Zvars    : list exog_clean - exogr_clean
+        local controls `exogr_clean'
+        local addcons  = ("`e(constant)'" != "noconstant")
+    }
+    else {
+        local exexog `e(exexog)'
+        local inexog `e(inexog)'
+        local exexog_clean
+        foreach v of local exexog {
+            if substr("`v'",1,2) != "o." local exexog_clean `exexog_clean' `v'
+        }
+        local inexog_clean
+        foreach v of local inexog {
+            if substr("`v'",1,2) != "o." local inexog_clean `inexog_clean' `v'
+        }
+        local Zvars    `exexog_clean'
+        local controls `inexog_clean'
+        local addcons  = ("`e(noconstant)'" == "")
+    }
+
+    /* --- Instruments (Z) --- */
+    mata: st_matrix("Z", st_data(., "`Zvars'"))
+
+    /* --- Controls (C) --- */
+    if "`controls'" != "" {
+        mata: st_matrix("C", st_data(., "`controls'"))
+    }
+    else {
+        mata: st_matrix("C", J(rows(st_matrix("X")), 0, .))
+    }
+    if `addcons' {
+        mata: st_matrix("C", (st_matrix("C"), J(rows(st_matrix("C")), 1, 1)))
+    }
 
     /* ---------------------------------------------------------
        3. Call Mata Gibbs sampler
