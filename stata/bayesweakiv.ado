@@ -2,81 +2,65 @@ program define bayesweakiv, eclass
     version 17.0
     syntax [, reps(integer 20000) discard(integer 1000) level(real 95)]
 
-    /* ---------------------------------------------------------
+	/* ---------------------------------------------------------
        1. Verify that last command was a supported IV estimator
     --------------------------------------------------------- */
-    local cmd "`e(cmd)'"
-    if !inlist("`cmd'", "ivregress", "ivreg2") {
-        di as error "bayesweakiv must follow ivregress or ivreg2"
-        exit 198
-    }
+local cmd "`e(cmd)'"
+if !inlist("`cmd'", "ivregress", "ivreg2") {
+	di as error "bayesweakiv must follow ivregress or ivreg2"
+	exit 198
+}
 
     /* ---------------------------------------------------------
        2. Extract variables — branches by command
     --------------------------------------------------------- */
 
-    /* --- Dependent variable --- */
-    mata: st_matrix("Y", st_data(., "`e(depvar)'"))
+/* --- Endogenous regressor --- */
+if "`cmd'" == "ivregress" {
+	local endogvars `e(endog)'
+}
+else {
+	local endogvars `e(instd)'
+}
 
-    /* --- Endogenous regressor --- */
-    if "`cmd'" == "ivregress" {
-        local endogvars `e(endog)'
-    }
-    else {
-        local endogvars `e(instd)'
-    }
-    mata: st_matrix("X", st_data(., "`endogvars'"))
+/* --- Excluded instruments (Z) and controls (C) --- */
+if "`cmd'" == "ivregress" {
+	local exogr `e(exogr)'
+	local exog  `e(exog)'
+	local exogr_clean
+	foreach v of local exogr {
+		if substr("`v'",1,2) != "o." local exogr_clean `exogr_clean' `v'
+	}
+	local exog_clean
+	foreach v of local exog {
+		if substr("`v'",1,2) != "o." local exog_clean `exog_clean' `v'
+	}
+	local Zvars    : list exog_clean - exogr_clean
+	local controls `exogr_clean'
+	local addcons  = ("`e(constant)'" != "noconstant")
+}
+else {
+	local exexog `e(exexog)'
+	local inexog `e(inexog)'
+	local exexog_clean
+	foreach v of local exexog {
+		if substr("`v'",1,2) != "o." local exexog_clean `exexog_clean' `v'
+	}
+	local inexog_clean
+	foreach v of local inexog {
+		if substr("`v'",1,2) != "o." local inexog_clean `inexog_clean' `v'
+	}
+	local Zvars    `exexog_clean'
+	local controls `inexog_clean'
+	local addcons  = ("`e(noconstant)'" == "")
+}
 
-    /* --- Excluded instruments (Z) and controls (C) --- */
-    if "`cmd'" == "ivregress" {
-        local exogr `e(exogr)'
-        local exog  `e(exog)'
-        local exogr_clean
-        foreach v of local exogr {
-            if substr("`v'",1,2) != "o." local exogr_clean `exogr_clean' `v'
-        }
-        local exog_clean
-        foreach v of local exog {
-            if substr("`v'",1,2) != "o." local exog_clean `exog_clean' `v'
-        }
-        local Zvars    : list exog_clean - exogr_clean
-        local controls `exogr_clean'
-        local addcons  = ("`e(constant)'" != "noconstant")
-    }
-    else {
-        local exexog `e(exexog)'
-        local inexog `e(inexog)'
-        local exexog_clean
-        foreach v of local exexog {
-            if substr("`v'",1,2) != "o." local exexog_clean `exexog_clean' `v'
-        }
-        local inexog_clean
-        foreach v of local inexog {
-            if substr("`v'",1,2) != "o." local inexog_clean `inexog_clean' `v'
-        }
-        local Zvars    `exexog_clean'
-        local controls `inexog_clean'
-        local addcons  = ("`e(noconstant)'" == "")
-    }
 
-    /* --- Instruments (Z) --- */
-    mata: st_matrix("Z", st_data(., "`Zvars'"))
-
-    /* --- Controls (C) --- */
-    if "`controls'" != "" {
-        mata: st_matrix("C", st_data(., "`controls'"))
-    }
-    else {
-        mata: st_matrix("C", J(rows(st_matrix("X")), 0, .))
-    }
-    if `addcons' {
-        mata: st_matrix("C", (st_matrix("C"), J(rows(st_matrix("C")), 1, 1)))
-    }
-
-    /* ---------------------------------------------------------
+/* ---------------------------------------------------------
        3. Call Mata Gibbs sampler
     --------------------------------------------------------- */
-    mata: bayesweakiv_draws("Y","X","Z","C", `reps', `discard')
+	mata: bayesweakiv_draws("`e(depvar)'","`endogvars'","`Zvars'","`controls'", `addcons', `reps', `discard')
+	mata: printf("Finished drawing from posterior\n")
 
     /* Results returned in Mata global matrices:
          beta_draws
@@ -98,7 +82,7 @@ program define bayesweakiv, eclass
        4. Display results
     --------------------------------------------------------- */
     di as text "Bayesian weak-IV posterior summaries"
-    di as text "Credible intervals based on `reps' draws"
+    di as text "Credible intervals based on `=`reps'-`discard'' draws"
     di ""
 
     di as result "beta (coefficient of interest)"
@@ -137,189 +121,157 @@ real matrix efficientMvNormalInv(real matrix mu, real matrix cholSigmaInv)
 	return(solveupper(cholSigmaInv', rnormal(rows(mu),1,0,1)) + mu)
 }
 
+/* --------------------------------------------------------------------------
+   pop_zscore()
+   Population-normalised zscore: subtract mean, divide by sqrt(mean(dev^2)).
+   Matches MATLAB's zscore(X, 1) — divides by T, not T-1.
+   Works column-by-column for matrices.
+-------------------------------------------------------------------------- */
+real matrix pop_zscore(real matrix X)
+{
+    real matrix result, mu
+    real scalar j, sd
+
+    mu     = mean(X)
+    result = X :- (J(rows(X), 1, 1) * mu)
+    for (j = 1; j <= cols(X); j++) {
+        sd = sqrt(mean(result[., j]:^2))
+        if (sd > 0) {
+            result[., j] = result[., j] :/ sd   // standardise normally
+        }
+        else {
+            result[., j] = X[., j]              // constant column — restore original
+        }
+    }
+    return(result)
+}
+
+
 void bayesweakiv_draws(string scalar Yname,
                        string scalar Xname,
-                       string scalar Zname,
-                       string scalar Cname,
+                       string scalar Znames,
+                       string scalar Cnames,
+					   real scalar addcons,
                        real scalar M,
 					   real scalar disc)
 {
-    Y = st_matrix(Yname)
-    X = st_matrix(Xname)
-    Z = st_matrix(Zname)
-    C = st_matrix(Cname)
 
-    T = rows(Y)
-    k = cols(Z)
-    l = cols(C)
-	reg = 1e-7
-
-    /* Initial Calculations */
-	invOmega = (Z'Z) / T
-	cross = makesymmetric((X, Z, C, Y)' * (X, Z, C, Y))
-	P = J(k+l, k+l, 0)
-    P[1..k,1..k] = invOmega
-    
-    /* Initial values */
-    gamma2 = 0.1
-	coef0 = cholsolve(cross[|2,2\k+l+1,k+l+1|] + T*P/gamma2, cross[|2,1\k+l+1,1|])
-    
-    pi = coef0[1..k]
-    rho = coef0[(k+1)..(k+l)]
-
-    /* Storage */
-    beta_draws  = J(M,1,.)
-    delta_draws = J(M,1,.)
-
-    /* Construct xTilde */
-    xTilde = (X, C, X - Z*pi - C*rho)
-	xTilde2 = xTilde' * xTilde + reg*I(l+2)
+	y = st_data(.,Yname)
+	sy = sqrt(variance(y))
+	y = (y :- mean(y)) / sy
 	
-
-    for (m=1; m<=M; m++) {
-
-        /* -------------------------
-           Block 1: beta, alpha, delta
-        ------------------------- */
-        xTilde[.,cols(xTilde)] = X - Z*pi - C*rho
-		xTilde2[.,cols(xTilde2)] = xTilde' * xTilde[.,cols(xTilde)]
-		xTilde2[cols(xTilde2),.] = xTilde2[.,cols(xTilde2)]'
-		xTilde2[rows(xTilde2),cols(xTilde2)] = xTilde2[rows(xTilde2),cols(xTilde2)] + reg
-		
-		xTilde2Chol = cholesky(xTilde2)
-		xiHat = solveFromChol(xTilde2Chol, xTilde'Y)
-        resid = Y - xTilde*xiHat
-        sHat = quadcross(resid,resid)
-
-        sigma2_eps = 1 / rgamma(1,1,(T-l-4)/2, (sHat/2)^(-1))
-		coef1 = efficientMvNormalInv(xiHat, xTilde2Chol/sqrt(sigma2_eps))
-		
-
-        beta  = coef1[1]
-        alpha = coef1[|2\l+1|]
-        delta = coef1[l+2]
-
-        /* -------------------------
-           Block 2: sigma2_nu
-        ------------------------- */
-        if (k > 2) {
-			piInvOmegaPi = quadcross(pi, invOmega*pi)
-			sigma2_nu = 1/rgamma(1,1,(T+k-2)/2, 
-				2/((xTilde2[cols(xTilde),cols(xTilde)]-reg)
-                + piInvOmegaPi/gamma2))
-        }
-        else {
-			sigma2_nu = 1/rgamma(1,1,T/2,
-				2/(xTilde2[cols(xTilde),cols(xTilde)]-reg))
-        }
-
-        /* -------------------------
-           Block 4: gamma2
-        ------------------------- */
-        if (k > 2) {
-			gamma2 = 1/rgamma(1,1,(k-2)/2,
-				2*sigma2_nu/piInvOmegaPi)
-        }
-
-        /* -------------------------
-           Block 3: pi, rho
-        ------------------------- */
-		if (k > 2) {
-			cholA = cholesky((1 + sigma2_nu/sigma2_eps * delta^2) * cross[|2,2\k+l+1,k+l+1|] + P/gamma2)
-			omegaHat = solveFromChol(cholA, cross[|2,1\k+l+1,1|] * (1 + sigma2_nu/sigma2_eps*delta*(beta+delta)) ///
-				- sigma2_nu/sigma2_eps*delta * (cross[|2,cols(cross)\k+l+1,cols(cross)|] - cross[|2,k+2\k+l+1,k+l+1|]*alpha))
-			omega = efficientMvNormalInv(omegaHat, cholA/sqrt(sigma2_nu))
-			pi = omega[|1\k|]
-			rho = omega[|k+1\k+l|]
-		}
-		else {
-			cholA = cholesky((1 + sigma2_nu/sigma2_eps * delta^2) * cross[|k+2,k+2\k+l+1,k+l+1|])
-			rhoHat = solveFromChol(cholA, cross[|k+2,1\k+l+1,1|]*(1 + sigma2_nu/sigma2_eps*delta*(beta+delta)) ///
-				- cross[|k+2,2\k+l+1,k+1|]*pi*(1 + sigma2_nu/sigma2_eps*delta^2) ///
-				- sigma2_nu/sigma2_eps*delta*(cross[|k+2,k+l+2\k+l+1,k+l+2|] - cross[|k+2,k+2\k+l+1,k+l+1|]*alpha))
-			rho = efficientMvNormalInv(rhoHat, cholA/sqrt(sigma2_nu))
-			
-			cholA = cholesky((1+sigma2_nu/sigma2_eps*delta^2)*cross[|2,2\k+1,k+1|])
-			piBar = solveFromChol(cholA, cross[|2,1\k+1,1|]*(1 + sigma2_nu/sigma2_eps*delta*(beta+delta)) ///
-				- cross[|2,k+2\k+1,k+l+1|]*(rho + sigma2_nu/sigma2_eps*delta*(rho*delta-alpha)) ///
-				- sigma2_nu/sigma2_eps*delta*cross[|2,k+l+2\k+1,k+l+2|])
-			piCandidate = efficientMvNormalInv(piBar, cholA/sqrt(sigma2_nu))
-			if (k == 2) {
-				pi = piCandidate 
-			}
-			else {
-				p = min((1, abs(piCandidate)/abs(pi)))
-				if (runiform(1,1) <= p) {
-					pi = piCandidate 
-				}
-			}
-		}
-		
-
-        /* Save draws */
-        beta_draws[m]  = beta
-        delta_draws[m] = delta
-    }
-
-    st_matrix("beta_draws", beta_draws[(disc+1)..length(beta_draws)])
-    st_matrix("delta_draws", delta_draws[(disc+1)..length(beta_draws)])
-}
-
-
-void draw_data(real scalar delta,
-				real scalar k)
-{
-	Z = rnormal(250,k,0,1)
-	s = runiform(1,1)/4
-	nu = rnormal(250,1,0,1)
-	st_matrix("X", Z*rnormal(k,1,0,s) + nu)
-	st_matrix("Y", delta*nu + rnormal(250,1,0,1))
-	st_matrix("Z", Z)
-	st_matrix("C", J(250,1,1))
-}
-
-void addFstat(real matrix Z,
-			real matrix C,
-			real matrix X,
-			real matrix Fstats)
-{
-	piRho = cholsolve((Z, C)'*(Z, C), (Z, C)'*X )
-	piRhoR = cholsolve(C'*C, C'*X )
-	SSRu = sum((X - (Z, C)*piRho):^2)
-	SSRr = sum((X - C*piRhoR):^2)
-	F = (SSRr-SSRu)/cols(Z) / (SSRu/(rows(X)-cols(Z)-cols(C)))
-	st_matrix("Fstats", Fstats\F)
+	x = st_data(.,Xname)
+	sx = sqrt(variance(x))
+    x = (x :- mean(x)) / sx
 	
-}
-
-void update_CI(real matrix betas,
-				real matrix uppers,
-				real matrix lowers,
-				real scalar level)
-{
-	st_matrix("uppers", uppers \ quantile(betas, 1 - (1 - level/100)/2))
-	st_matrix("lowers", lowers \ quantile(betas, (1 - level/100)/2))
-}
-
-void power(real matrix domain,
-			real matrix uppers,
-			real matrix lowers,
-			real matrix Fstats)
-{
-	fVals = (0,2,4,6,8,10,20)
-	counts = J(length(domain),6,0)
-	for(i=1;i<=6;i++){
-		mask = (Fstats :>= fVals[i]) :& (Fstats :< fVals[i+1])
-		U = select(uppers, mask)
-		L = select(lowers, mask)
-		for(j=1;j<=length(domain);j++){
-			counts[j,i] = sum((L :<= domain[j]) :& (U :>= domain[j]))
-		}
-		counts[.,i] = counts[.,i] / length(U)
+    z = pop_zscore(st_data(.,tokens(Znames)))
+	
+	
+	//c = st_matrix(Cname)
+	c = (Cnames != "" ? st_data(., tokens(Cnames)) : J(rows(y), 0, .))
+    if (addcons) c = (c, J(rows(y), 1, 1))
+	if (rows(c) > 0 & cols(c) > 0) {
+		c = pop_zscore(c) 
 	}
-	st_matrix("counts",counts)
+	// Dimensions:
 	
+	T = rows(z)
+	k = cols(z)
+	l = cols(c)
 	
+	// Precompute and name certain matrices:
+	
+	P = makesymmetric((x, c, z, y)'*(x, c, z ,y))
+	ww = P[|2,2\l+k+1,l+k+1|]
+	wx = P[|2,1\l+k+1,1|]
+	wy = P[|2,l+k+2\l+k+1,l+k+2|]
+	wc = P[|2,2\l+k+1,l+1|]
+	xcz2 = P[|1,1\l+k+1,l+k+1|]
+	xczy = P[|1,l+k+2\l+k+1,l+k+2|]
+	yy = P[l+k+2,l+k+2]
+	cx = P[|2,      1      \ l+1,   1|]        // l x 1
+	cz = P[|2,      l+2    \ l+1,   l+k+1|]   // l x k
+	cy = P[|2,      l+k+2  \ l+1,   l+k+2|]   // l x 1
+	cc = P[|2,      2      \ l+1,   l+1|]      // l x l
+	zx = P[|l+2,    1      \ l+k+1, 1|]        // k x 1
+	zz = P[|l+2,    l+2    \ l+k+1, l+k+1|]   // k x k
+	zy = P[|l+2,    l+k+2  \ l+k+1, l+k+2|]   // k x 1
+	zc = P[|l+2,    2      \ l+k+1, l+1|]      // k x l
+	// Storage:
+	
+	BETA = J(M, 1, .)
+	DELTA = J(M, 1, .)
+	
+	// Starting values:
+	
+	gam2draw = 0.1 
+	zzT = (z'*z)/T 
+	invVprior = J(l+k,l+k,0)
+	invVprior[|l+1,l+1\l+k,l+k|] = zzT 
+	pidraw = cholsolve(ww+invVprior/gam2draw, wx)
+	uu = (1 \ -pidraw)'*xcz2*(1 \ -pidraw)
+	
+	// Clean up:
+	x = y = z = c = J(0,0,.)
+	
+	for (i=1; i<=M; i++) {
+		
+		// Block 1
+		R = (I(l+1) \ J(k,l+1,0)), (1 \ -pidraw)
+		xcu2 = R'*xcz2*R + diag((0.0001^2, J(1,l,0), 0.0001^2))
+		Lxcu2 = cholesky(xcu2)
+		bhatols = solveFromChol(Lxcu2, R'*xczy)
+		ssr = yy-xczy'*R*bhatols 
+		s2epsdraw = 1 / rgamma(1,1,(T-4-l)/2, 2/ssr)
+		betadeltadraw = sqrt(s2epsdraw)*solveupper(Lxcu2', rnormal(l+2, 1, 0, 1)) + bhatols
+		betadraw = betadeltadraw[1]
+		BETA[i] = betadraw 
+		deltadraw = betadeltadraw[rows(betadeltadraw)]
+		DELTA[i] = deltadraw 
+		
+		// Block 2
+		if (k > 2) {
+			s2udraw = 1 / rgamma(1,1,(T+k-2)/2, 2/(uu+pidraw'*invVprior*pidraw/gam2draw))
+		} else {
+			s2udraw = 1 / rgamma(1,1,T/2, 2/uu)
+		}
+		
+		// Block 3
+		if (k > 2) {
+			gam2draw = 1 / rgamma(1,1, (k-2)/2, 2/(pidraw[l+1..l+k]'*zzT*pidraw[l+1..l+k]/s2udraw))
+		}
+		
+		// Block 4 
+		if (k > 2) {
+			alpha = (deltadraw^2*s2udraw+s2epsdraw)/s2epsdraw 
+			B = wx-(wy-wx*(betadraw+deltadraw)-wc*betadeltadraw[2..rows(betadeltadraw)-1])*deltadraw*s2udraw/s2epsdraw 
+			A = alpha*ww + invVprior/gam2draw 
+			LA = cholesky(A) 
+			pihat = solveFromChol(LA, B)
+			pidraw = sqrt(s2udraw) * solveupper(LA', rnormal(l+k, 1, 0, 1)) + pihat
+			uu = (1 \ -pidraw)'*xcz2*(1 \ -pidraw)
+		} else {
+			aux = (deltadraw^2 * s2udraw + s2epsdraw) / s2epsdraw
+			Bxi = cx - cz*pidraw[l+1..l+k] - (cy - cx*(betadraw+deltadraw) - cc*betadeltadraw[2..length(betadeltadraw)-1] + cz*pidraw[l+1..l+k] * deltadraw) * deltadraw * s2udraw/s2epsdraw
+			Axi = aux*cc
+			LAxi = cholesky(Axi)
+			xihat = solveFromChol(LAxi, Bxi)
+			xidraw = sqrt(s2udraw) * solveupper(LAxi', rnormal(l,1,0,1)) + xihat
+			pidraw[1..l] = xidraw 
+			
+			Bal = zx - zc*pidraw[1..l] - (zy - zx *(betadraw+deltadraw) - zc * betadeltadraw[2..length(betadeltadraw)-1] + zc * pidraw[1..l] * deltadraw) * deltadraw * s2udraw / s2epsdraw
+			Aal = aux*zz
+			LAal = cholesky(Aal)
+			alhat = solveFromChol(LAal, Bal)
+			aldraw = sqrt(s2udraw) * solveupper(LAal', rnormal(k,1,0,1)) + alhat 
+			p = min((1, exp(-(k-2)/2*(log(aldraw'*zz*aldraw) - log(pidraw[l+1..l+k]'*zz*pidraw[l+1..l+k])))))
+			if (runiform(1,1) < p) {
+				pidraw[l+1..l+k] = aldraw
+			}
+			uu = (1 \ -pidraw)'*xcz2*(1 \ -pidraw)
+		}
+		
+	}
+	st_matrix("beta_draws", BETA[(disc+1)..length(BETA)] * sy/sx)
+    st_matrix("delta_draws", DELTA[(disc+1)..length(DELTA)] * sy/sx)
 }
-end
-
