@@ -38,12 +38,12 @@ bayesweakiv/
 ├── README.md           ← this file
 ├── LICENSE             ← MIT
 ├── CITATION.cff        ← structured citation
+├── Application.md      ← application to Angrist and Krueger (1991)
 ├── stata/
 │   ├── README.md       ← Stata-specific instructions
 │   ├── bayesweakiv.ado ← main command and sampler implementation
 │   ├── bayesweakiv.pkg ← package manifest
-│   ├── stata.toc       ← stata table of contents
-│   └── example.do      ← worked example (planned)
+│   └── stata.toc       ← stata table of contents
 └── julia/
     ├── README.md       ← Julia-specific instructions
     └── bayesweakiv.jl  ← sampler implementation
