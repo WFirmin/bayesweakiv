@@ -46,8 +46,7 @@ bayesweakiv/
 │   └── example.do      ← worked example (planned)
 └── julia/
     ├── README.md       ← Julia-specific instructions
-    ├── bayesweakiv.jl  ← sampler implementation
-    └── example.jl      ← worked example (planned)
+    └── bayesweakiv.jl  ← sampler implementation
 ```
 
 ---
