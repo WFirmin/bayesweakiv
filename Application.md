@@ -1,6 +1,7 @@
-# Replication: Angrist and Krueger (1991)
+# Replications
+## Angrist and Krueger (1991)
  
-This file replicates selected specifications from:
+This section replicates selected specifications from:
  
 > Angrist, J. D., and A. B. Krueger. 1991. Does compulsory school attendance affect schooling and earnings? *Quarterly Journal of Economics* 106(4): 979–1014.
  
@@ -8,18 +9,16 @@ Angrist and Krueger use quarter of birth as an instrument for years of schooling
 
 We download the data and replication files from https://economics.mit.edu/people/faculty/josh-angrist/angrist-data-archive.  We run the do files with the simple addition of the weakbayesiv command after each 2SLS regression.  We use 200,000 draws of the posterior and discard the first 20,000 for each specification.
 
----
  
-## Notation
+### Notation
  
 Results are reported for specifications drawn from Tables 4, 5, and 6 of the original paper. The notation **T(C)** denotes:
  
 - **T** — the table number in Angrist and Krueger (1991)
 - **C** — the column number in table T
 
----
  
-## Results
+### Results
  
 Estimates of the return to schooling (coefficient on years of education). TSLS confidence intervals and Bayesian credible intervals are both 95%. A ⚠️ flag marks specifications where the two methods give notably different intervals, indicating that instrument weakness is influencing the TSLS result.  The Bayes estimate is the mode of the posterior.
 
@@ -38,3 +37,13 @@ Estimates of the return to schooling (coefficient on years of education). TSLS c
 6(6) | 0.0393    | [0.0109, 0.0677] | 0.0155 | [-0.0293,0.0577]|⚠️|
 6(8) | 0.0779    | [0.0311, 0.1247] | 0.1253 | [0.0226,0.2563]||
 
+---
+## Acconcia et al. (2014)
+
+This paper estimates the output multiplier from spending cuts.  We report the original results from the first TSLS specification in Table 4.  Since the Bayesian method does not allow clustering of standard errors, we also report TSLS confidence intervals without clustering.
+
+| Method | Estimate | 95% CI |
+|--------|----------|--------|
+|TSLS | 1.4565 | [0.4922,2.4208]|
+|TSLS (No Clustering) |1.4565 | [0.5220,2.3910]|
+|Bayesian | 1.5261 | [0.6089,2.7551] |
