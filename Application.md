@@ -1,4 +1,12 @@
 # Replications
+## Summary
+The following table describes each application.  The Citation column gives author initials and publication year.  Author names are listed out fully in their section.  The variables Y, X, and Z describe the dependent variable, endogenous regressor, and instrumental variables respectively.  These descriptions leave many specifics in the original papers.  k reports the number of instruments.  Obs. reports the number of observations for cross-sectional data, and when panel data is used, the dimensions of the panel data.  The Data column describes what one observation is.  The Clust. column indicates whether standard errors are clustered.
+| Citation | Y | X | Z | k | Obs. | Data | Clust. |
+|----------|---|---|---|---|-------|------|------------|
+|AK (1991) | Weekly wage | Years of education | (Quarter x Year) of birth dummies | 27 | 250,000-500,000 for each cohort dataset | Census respondents | No |
+| ACS (2014) | Economic output | Public investment | Gov. dismissal due to mafia | 2 | 95 x 10 | Italian provinces, annual | Yes |
+
+
 ## Angrist and Krueger (1991)
  
 This section replicates selected specifications from:
