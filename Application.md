@@ -5,7 +5,7 @@ The following table describes each application.  The Citation column gives autho
 |----------|---|---|---|---|-------|------|------------|
 |AK (1991) | Weekly wage | Years of education | (Quarter x Year) of birth dummies | 27 | 250,000-500,000 for each cohort dataset | Census respondents | No |
 | ACS (2014) | Economic output | Public investment | Gov. dismissal due to mafia activity | 2 | 95 x 10 | Italian provinces, annual | Yes |
-| Y (2014) | TFP growth | Labor-income-share-weighted sum of change in national employment shares | Z | k | nxt | Industry, country, year | No |
+| Y (2014) | TFP growth | Labor-income-share-weighted sum of change in national employment shares | Various macro instruments | 59 | 60 x 24 | Industry, year | No |
 
 
 ## Angrist and Krueger (1991)
