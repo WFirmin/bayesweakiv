@@ -10,6 +10,7 @@ The following table describes each application.  The Citation column gives autho
 | FI (2015) | Housing prices | Credit supply | Responses to deregulation | 1 | ~1,018 x 11 | County, year | Yes | 
 | SY (2014) | Wages, unemployment, divorce, etc. | Years of education | Compulsory schooling | 3 | 600,000-3,700,000 | Census respondents | Yes |
 | MVW (2014) | Patents by US inventors | Patents by Jewish émigrés | Pre-1933 patents of dismissed chemists | 1 | 166 x 51 | Tech class, year | Yes |
+| H (2014) | Productivity | Skilled-worker immigration | Population loss from war | 1 | 150 | Firms | Yes |
 
 ## Angrist and Krueger (1991)
  
@@ -70,3 +71,5 @@ This paper considers many instruments, but selects four sets of instruments with
 ## Stephens and Yang (2014)
 
 ## Moser, Voena, and Waldinger (2014)
+
+## Hornung (2014)
