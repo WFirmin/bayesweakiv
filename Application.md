@@ -9,6 +9,7 @@ The following table describes each application.  The Citation column gives autho
 | D (2015) | Avg. premium | Ease of manipulating subsidy | Regulation changes | 1 | 34 x 5 | Region, year | Yes |
 | FI (2015) | Housing prices | Credit supply | Responses to deregulation | 1 | ~1,018 x 11 | County, year | Yes | 
 | SY (2014) | Wages, unemployment, divorce, etc. | Years of education | Compulsory schooling | 3 | 600,000-3,700,000 | Census respondents | Yes |
+| MVW (2014) | Patents by US inventors | Patents by Jewish émigrés | Pre-1933 patents of dismissed chemists | 1 | 166 x 51 | Tech class, year | Yes |
 
 ## Angrist and Krueger (1991)
  
@@ -67,3 +68,5 @@ This paper considers many instruments, but selects four sets of instruments with
 ## Favara and Imbs (2015)
 
 ## Stephens and Yang (2014)
+
+## Moser, Voena, and Waldinger (2014)
