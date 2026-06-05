@@ -4,7 +4,8 @@ The following table describes each application.  The Citation column gives autho
 | Citation | Y | X | Z | k | Obs. | Data | Clust. |
 |----------|---|---|---|---|-------|------|------------|
 |AK (1991) | Weekly wage | Years of education | (Quarter x Year) of birth dummies | 27 | 250,000-500,000 for each cohort dataset | Census respondents | No |
-| ACS (2014) | Economic output | Public investment | Gov. dismissal due to mafia | 2 | 95 x 10 | Italian provinces, annual | Yes |
+| ACS (2014) | Economic output | Public investment | Gov. dismissal due to mafia activity | 2 | 95 x 10 | Italian provinces, annual | Yes |
+| Y (2014) | TFP growth | Labor-income-share-weighted sum of change in national employment shares | Z | k | nxt | Industry, country, year | No |
 
 
 ## Angrist and Krueger (1991)
@@ -55,3 +56,6 @@ This paper estimates the output multiplier from spending cuts.  We report the or
 |TSLS | 1.4565 | [0.4922,2.4208]|
 |TSLS (No Clustering) |1.4565 | [0.5220,2.3910]|
 |Bayesian | 1.5261 | [0.6089,2.7551] |
+
+## Young (2014)
+This paper considers many instruments, but selects four sets of instruments with an F test and runs TSLS using each set.  Of the four sets, only one provides a statistically significant estimate.  Three estimates are negative while one (statistically insignificant) estimate is positive.  The bayesian method has the advantage of providing valid inference without a selection step.
