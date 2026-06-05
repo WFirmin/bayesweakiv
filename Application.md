@@ -3,11 +3,11 @@
 The following table describes each application.  The Citation column gives author initials and publication year.  Author names are listed out fully in their section.  The variables Y, X, and Z describe the dependent variable, endogenous regressor, and instrumental variables respectively.  These descriptions leave many specifics in the original papers.  k reports the number of instruments.  Obs. reports the number of observations for cross-sectional data, and when panel data is used, the dimensions of the panel data.  The Data column describes what one observation is.  The Clust. column indicates whether standard errors are clustered.
 | Citation | Y | X | Z | k | Obs. | Data | Clust. |
 |----------|---|---|---|---|-------|------|------------|
-|AK (1991) | Weekly wage | Years of education | (Quarter x Year) of birth dummies | 27 | 250,000-500,000 for each cohort dataset | Census respondents | No |
+| AK (1991) | Weekly wage | Years of education | (Quarter x Year) of birth dummies | 27 | 250,000-500,000 for each cohort dataset | Census respondents | No |
 | ACS (2014) | Economic output | Public investment | Gov. dismissal due to mafia activity | 2 | 95 x 10 | Italian provinces, annual | Yes |
 | Y (2014) | TFP growth | Labor-income-share-weighted sum of change in national employment shares | Various macro instruments | 59 | 60 x 24 | Industry, year | No |
 | D (2015) | Avg. premium | Ease of manipulating subsidy | Regulation changes | 1 | 34 x 5 | Region, year | Yes |
-
+| FI (2015) | Housing prices | Credit supply | Responses to deregulation | 1 | ~1,018 x 11 | County, year | Yes | 
 
 ## Angrist and Krueger (1991)
  
@@ -62,3 +62,5 @@ This paper estimates the output multiplier from spending cuts.  We report the or
 This paper considers many instruments, but selects four sets of instruments with an F test and runs TSLS using each set.  Of the four sets, only one provides a statistically significant estimate.  Three estimates are negative while one (statistically insignificant) estimate is positive.  The bayesian method has the advantage of providing valid inference without a selection step.
 
 ## Decarolis (2015)
+
+## Favara and Imbs (2015)
