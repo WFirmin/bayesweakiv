@@ -8,6 +8,7 @@ The following table describes each application.  The Citation column gives autho
 | Y (2014) | TFP growth | Labor-income-share-weighted sum of change in national employment shares | Various macro instruments | 59 | 60 x 24 | Industry, year | No |
 | D (2015) | Avg. premium | Ease of manipulating subsidy | Regulation changes | 1 | 34 x 5 | Region, year | Yes |
 | FI (2015) | Housing prices | Credit supply | Responses to deregulation | 1 | ~1,018 x 11 | County, year | Yes | 
+| SY (2014) | Wages, unemployment, divorce, etc. | Years of education | Compulsory schooling | 3 | 600,000-3,700,000 | Census respondents | Yes |
 
 ## Angrist and Krueger (1991)
  
@@ -64,3 +65,5 @@ This paper considers many instruments, but selects four sets of instruments with
 ## Decarolis (2015)
 
 ## Favara and Imbs (2015)
+
+## Stephens and Yang (2014)
