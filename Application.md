@@ -60,6 +60,7 @@ This paper estimates the output multiplier from spending cuts.  We report the or
 |TSLS | 1.4565 | [0.4922,2.4208]|
 |TSLS (No Clustering) |1.4565 | [0.5220,2.3910]|
 |Bayesian | 1.5261 | [0.6089,2.7551] |
+| Endog. Estimate | -1.3512 | [-2.5861, -0.4255 ] |
 
 ## Young (2014)
 This paper considers many instruments, but selects four sets of instruments with an F test and runs TSLS using each set.  Of the four sets, only one provides a statistically significant estimate.  Three estimates are negative while one (statistically insignificant) estimate is positive.  The bayesian method has the advantage of providing valid inference without a selection step.
