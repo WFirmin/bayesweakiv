@@ -64,6 +64,14 @@ This paper estimates the output multiplier from spending cuts.  We report the or
 ## Young (2014)
 This paper considers many instruments, but selects four sets of instruments with an F test and runs TSLS using each set.  Of the four sets, only one provides a statistically significant estimate.  Three estimates are negative while one (statistically insignificant) estimate is positive.  The bayesian method has the advantage of providing valid inference without a selection step.
 
+| Instruments | TSLS | TSLS 95% CI | Bayes | Bayes 95% CI | Endog. Estimate | 95% CI |
+|--------|----------|--------|-----------------|--------| -----------------|-----------|
+| $\Delta$ Defense Spending | -0.9223 | [-1.4433,-0.4013] | -1.3219 | [-2.1749,-0.5370] | 1.2385 | [0.3959, 2.1439] |
+| $\Delta$ Metal Prices | -0.5463 | [-1.1694, 0.0768] | -1.2989 | [-3.2025,0.2872] | 1.1410 | [-0.5230, 3.0947] |
+| Oil Price Maximum | 0.3722 | [-0.3810, 1.1254] | 8.1778 | [1.1820, 29.6185] | -8.4676 | [-29.8794, -1.4543] |
+| Fed funds surprises | -0.4678 | [-1.0905, 0.1549] | 5.9432 | [-54.6128, 136.2076] | -6.0174 | [-136.4447, 54.4994] |
+| All | -0.0802 | [-0.4234, 0.2630] | -0.0193 | [-1.2064, 1.1873] | -0.2144 | [-1.6809, 1.2477] |
+
 ## Decarolis (2015)
 
 ## Favara and Imbs (2015)
