@@ -38,5 +38,9 @@ The syntax of the main command is:
 
 `level(real)` chooses the nominal coverage of the returned credible interval.  It takes values in percent, so its default of 95 specifies a 95% coverage.
 
+### Stored Results
+The `bayesweakiv` command stores the following in `e()`:
+
+
 
 ## 4. Returns to schooling
