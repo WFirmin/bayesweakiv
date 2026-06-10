@@ -41,6 +41,26 @@ The syntax of the main command is:
 ### Stored Results
 The `bayesweakiv` command stores the following in `e()`:
 
+Scalars
+
+`e(beta_mean)`: the sample mean of the posterior draws for $\beta$.
+
+`e(beta_lo)`: the lower endpoint of the credible interval for $\beta$.
+
+`e(beta_hi)`: the upper endpoint of the credible interval for $\beta$.
+
+`e(delta_mean)`: the sample mean of the posterior draws for $\delta$.
+
+`e(delta_lo)`: the lower endpoint of the credible interval for $\delta$.
+
+`e(delta_hi)`: the upper endpoint of the credible interval for $\delta$.
+
+Matrices
+
+`e(beta_draws)`: the draws from the posterior distribution of $\beta$.
+
+`e(delta_draws)`: the draws from the posterior distribution of $\delta$.
+
 
 
 ## 4. Returns to schooling
