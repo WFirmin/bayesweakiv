@@ -5,8 +5,21 @@ Instrumental variables remain a popular method for causal inference in econometr
 The article is organized as follows.  Section 2 describes the instrumental variables framework and the Bayesian method.  Section 3 documents the Stata command and describes how to use it.  Section 4 gives an example, applying the method to estimating the returns to schooling as in Angrist and Krueger (1991).
 
 ## 2. Setup and theory
+This method considers the model
 
+$y=x\beta+c\alpha+\delta\nu+\varepsilon$
 
+$x=z\pi+c\rho+\nu$
+
+with dependent variable $y\in\mathbb{R}^T$, endogenous regressor $x\in R^T$, excluded instruments $z\in R^{T\times k}$, included instruments $c\in R^{T\times l}$, and unobserved errors $\nu,\varepsilon\in R^T$.  The errors are uncorrelated with each other.  The parameters $\beta\in R$, $\delta\in R$, $\alpha\in R^l$, $\rho\in R^l$, and $\pi\in R^k$ are unknown.  The parameter on the endogenous regressor, $\beta$, is the main parameter of interest.  The $\delta$ parameter captures the level of endogeneity of $x$ and is thus of secondary interest.  For $\delta=0$, $x$ is exogenous and we can use ordinary least squares.
+
+Economists commonly use two stage least squares (TSLS) to estimate the system, and the parameter estimates are typically asymptotically normally distributed.  However, when $\pi$ is very close to zero, inference breaks down.  Similarly, a simple Bayesian regression with flat priors leads to undesirable properties for inference. This is the problem of weak instruments.  
+
+Giannone, Lenza, and Primiceri (2025) point out that with a correctly specified likelihood function, the issue must come from the prior.  They propose a nonflat prior for the first stage that induces a flat prior on the concentration parameter $\mu^2=\frac{\pi'z'z\pi}{\sigma_\nu^2}$, which captures the strength of the instruments.  The prior is agnostic about instrument strength, yielding weak instrument robust inference.  
+
+The proposed prior places weight on different values of $\pi$ in different ways depending on the number of instruments.  For $k=2$, no adjustment is needed: a flat prior on $\pi$ induces a flat prior on $\mu^2$.  For $k=1$, mass is shifted away from zero.  When $k>2$, the prior shrinks the first stage coefficients $\pi$ towards zero.
+
+This article presents code to implement their prior following a call to `ivregress` or `ivreg2`.  Pulling the data from the previous command, it knows the number of instruments and applies the appropriate prior.  It draws from the posterior using a Gibbs sampling algorithm provided by Giannone, Lenza, and Primiceri (2025).
 
 ## 3. The `bayesweakiv` command
 The command `bayesweakiv` is implemented as a postestimation command for `ivreg2` and `ivregress`.  Calling `bayesweakiv` directly after an IV regression will use the relevant information returned from the IV regression command to draw from the posterior distribution of the parameters.
